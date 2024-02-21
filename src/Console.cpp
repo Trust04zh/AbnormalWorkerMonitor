@@ -32,12 +32,12 @@ namespace DX11_Base
 	//	raw print to console with desired color and formatting
 	void Console::printdbg(const char* Text, Colors color, ...)
 	{
-		SetConsoleTextAttribute(this->pHwnd, color);
+		SetConsoleTextAttribute(this->pHandle, color);
 		va_list arg;
 		va_start(arg, color);
 		vfprintf(this->stream_out, Text, arg);
 		va_end(arg);
-		SetConsoleTextAttribute(this->pHwnd, Colors::DEFAULT);
+		SetConsoleTextAttribute(this->pHandle, Colors::DEFAULT);
 	}
 
 	//	console take input from user 
