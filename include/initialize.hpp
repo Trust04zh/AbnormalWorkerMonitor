@@ -23,6 +23,7 @@ static int LastTick = 0;
 DWORD WINAPI MainThread_Initialize(LPVOID dwModule)
 {
     //  WAIT FOR USER INPUT
+    Sleep(30);
     while (!g_GameData->GamePadGetKeyState(XINPUT_GAMEPAD_RIGHT_THUMB | XINPUT_GAMEPAD_LEFT_THUMB) && GetAsyncKeyState(VK_INSERT) == 0)
         Sleep(60);
 
