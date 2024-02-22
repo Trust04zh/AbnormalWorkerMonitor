@@ -1,4 +1,4 @@
-AbnormalWorkerManager (AWM)
+# AbnormalWorkerManager (AWM)
 
 A Palworld mod to monitor some abnormal cases for base camp pal workers.
 
