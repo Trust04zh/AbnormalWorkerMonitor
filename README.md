@@ -1,71 +1,89 @@
-# PalWorld-NetCrack  
-> [!Note]
-> **THIS IS THE STEAM VERSION**
-## 
+AbnormalWorkerManager (AWM)
 
-<p align="center">
-<img src="https://github.com/NightFyre/Palworld-Internal/assets/80198020/dc552cca-b177-4748-ba30-fe99f6b87b74">
-</p>
+A Palworld mod to monitor some abnormal cases for base camp pal workers.
 
-<Details>  
-  <Summary>FEATURES</Summary>  
-  
-> - NPC ESP ( Names, 2D Box )  
-> - PAL ESP ( Names, 2D Box )  
-> - Infinite Ammo  
-> - Infinite Stamina  
-> - Modify Player Speed  
-> - Modify Player Attack Power  
-> - Modify Player Defense Power  
-> - God Mode  
-> - Full Bright  
-> - Set Random Nickname  
-> - Set Party XP  
-> - Spawn Items  
-> - Give Items by Index  
-> - Unlock Effigies  
-> - Float Mode ( semi fly mode but cant adjust height )  
-> - Revive Player  
-> - Entity Manager ( Kill , teleport to, forge )  
-> - Waypoint Manager  ( Boss Locations, Fast Travel Locations , etc )  
-> - Give Item Stacks   
-> - Teleport Pals to Crosshair  
-> - Death Aura ( enemy pals lose health as they get closer to player )  
+Current features:
 
-</Details>  
+- teleport pal worker with abnormal spawn point to its base camp on mod load.
+- teleport pal worker of abnormal cases to its base camp.
+  - sanity low (< 50)
+  - hungry
+  - outside base camp
+  - too low (distance configurable)
+  - too high (distance configurable)
 
-## USAGE
-- Compile Solution ( SDK, Launcher, DLL )  
-- Launch palworld as you would normally and load into your local world of choice  
-- Once loaded into a world launch "PalworldLauncher.exe" from the bin folder in the solution directory  
-- Show and hide the menu with [ INSERT ]  
+#### Usage
 
-## UPDATING
-- Dump the game with dumper7  
-- Move SDK folder and SDK.hpp into SDKLibrary solution folder  
-- Attempt to compile, fix all errors by changing class and member names ( redifition errors )  
-- Update APalPlayerCharacter::Tick offset by searching for the aob in cheat engine   
-- compile Palworld-Netcrack and execute the launcher in the bin folder  
+Install the mod, enter game, enter world, press key `insert` (on laptop maybe `fn + insert`), wait for a while and you'll see a chat message says "awm looks good", press `insert` to switch the mod window, click `WORKER` to switch to the tab for AWM.
 
-<Details>  
-  <Summary>AOBS</Summary>  
-  
-> GEngine: `48 89 ? ? ? ? ? 48 85 ? 74 ? E8 ? ? ? ? 48 8D ? ? E8 ? ? ? ? 0F 28`  
-> GObjects: `48 8B 05 ? ? ? ? 48 8B 0C C8 4C 8D 04 D1 EB 03`  
-> FNames: `48 8D 05 ? ? ? ? EB 13 48 8D 0D ? ? ? ? E8 ? ? ? ? C6 05 ? ? ? ? ? 0F 10`  
-> GWorld: `48 8B 1D ?? ?? ?? ?? 48 85 DB 74 33 41 B0`  
-> GetBoneMatrix: `E8 ? ? ? ? 48 8B CB 0F 10 00 0F 11 83 ? ? ? ? 0F 10 48 10 0F 11 8B ? ? ? ? 0F 10 40 20 0F 11 83`  
-> APalPlayerCharacter::Tick: `48 89 5C 24 ? 57 48 83 EC 60 48 8B F9 E8 ? ? ? ? 48 8B | [IDA NOTE: 2ND RESULT]`  
+**Please always press first `insert` after you enter the world**, but it is ok to press `insert` again to show the mod window before the chat message.
 
-</Details>  
+![example](images/example.jpg)
 
-### KNOWN ISSUES
-- Some features will cause a crash if toggled before loading into a world  
-- returning to the main menu and attempting to join another world will likely crash the game  
+#### Install
 
-## External Library Credits  
-[Dear ImGui](https://github.com/ocornut/imgui)  
-[MinHook](https://github.com/TsudaKageyu/minhook)  
-[Dumper7](https://github.com/Encryqed/Dumper-7)  
-[DX11-Internal-Base](https://github.com/NightFyre/DX11-ImGui-Internal-Hook)  
-[Palworld Reversal, Structs and Offsets](https://www.unknowncheats.me/forum/palworld/620076-palworld-reversal-structs-offsets.html)  
+##### Universal Ones
+
+Any method to inject the dll into the game. The following are some methods.
+
+##### D3D9 wrapper
+
+See the [dll loader for palworld released on nexusmods](https://www.nexusmods.com/palworld/mods/372), follow it's instructions, the final folder structure should be like:
+
+```
+Pal/
+├── Binaries/
+│   ├── Win64/
+│   │   ├── Palworld-Win64-Shipping.exe
+│   │   ├── d3d9.dll
+│   │   └── Plugins
+│   │       └── AbnormaWorkerMonitor.dll
+├── Content/
+└── Plugins/
+```
+
+The mod name `AbnormaWorkerMonitor.dll` can be changed.
+
+##### PalLauncher
+
+Download `PalLauncher.exe` in the release page, put it into the same directory with the mod file, **enter game world first**, run `PalLauncher.exe` (you won't see anything as it just works on background), then press `insert`...
+
+The mod name `AbnormaWorkerMonitor.dll` must not be changed.
+
+#### Build
+
+Clone the repo, openthe `.sln` file in root directory, build solution `AbnormaWorkerMonitor` with configuration `Release`, in the `bin` directory you would find the `.dll` mod file.
+
+#### Known Issues
+
+**Not tested on server**, mayber later, I would appreciate if you share your test results or ideas or anything else on this or anything related to this mod.
+
+Crashes if you reenter a world, also not implement to handle so, **restart the game after you leave a world plz**, I don't know an elegant way to handle this and prefer to do later.
+
+The mod sleeps for 30 seconds when loaded (before listening to `insert`), if you computer is fast, **you may need to wait for a while before the mod listening to you key press**.
+
+#### Gossips
+
+I use sliding window based on time to determine if pal worker of abnormal cases should be teleported. **In short, pal won't be teleported onced it matches any of the abnormal cases, but will be teleported only if it matches the cases several times during a time period**. If you prefer the instant teleport, see `AbnormalWorkerManager::init_time_windows_and_cooldown()` and there's a commented version to do so.
+
+The purpose of this project is to mend the weird game behaviors, However, this project, based on [Palworld-Internal](https://github.com/NightFyre/Palworld-Internal), which appears more like a game mod to gain superpower, retains the original features while adding new features. **If seeing the UI that provides superpower functions in the game displeases you, you can download the `clean` version (remove the suffix "_clean" if you use `PalLauncher`)**. This version removes the window tabs related to the Palworld-Internal features, but note that it still keeps the "PalWorld-NetCrack" watermark at the top of the screen.
+
+Please make a star if you like this project.
+
+![keaidinie](images/keaidinie.jpg)
+
+#### Acknowledgement
+
+[Palworld-Internal](https://github.com/NightFyre/Palworld-Internal) integration of pal c++ api, game tick hooking, ui injection, dll injection
+
+[PalWorld-NetCrack](https://github.com/Chaos192/PalWorld-NetCrack) the original project of the former
+
+[Dear ImGui](https://github.com/ocornut/imgui)
+
+[MinHook](https://github.com/TsudaKageyu/minhook)
+
+[Dumper7](https://github.com/Encryqed/Dumper-7)
+
+[DX11-Internal-Base](https://github.com/NightFyre/DX11-ImGui-Internal-Hook)
+
+[Palworld Reversal, Structs and Offsets](https://www.unknowncheats.me/forum/palworld/620076-palworld-reversal-structs-offsets.html)
