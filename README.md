@@ -20,6 +20,8 @@ Install the mod, enter game, enter world, press key `insert` (on laptop maybe `f
 
 ![example](images/example.jpg)
 
+Note that tabs other than "WORKER" are from Palworld-Internal and Palworld-NetCrack.
+
 #### Install
 
 ##### Universal Ones
