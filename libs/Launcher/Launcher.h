@@ -2,7 +2,7 @@
 #include "pch.h"
 
 static const wchar_t* PROCESS_NAME = (isXbox) ? L"Palworld-WinGDK-Shipping.exe" : L"Palworld-Win64-Shipping.exe";
-static const char* DLL_NAME = (isDebug) ? "palcrackd.dll" : "palcrack.dll";
+static const char* DLL_NAME = (isDebug) ? "AbnormalWorkerMonitord.dll" : "AbnormalWorkerMonitor.dll";
 
 int ExitWithErrorMsg(const char* eMSG, DWORD eCODE);
 std::string GetCurrentPath();

@@ -54,6 +54,14 @@ public:
 	bool bSkipLocalPlayer = true;
 	bool bisRandomName = false;
 	bool bisTeleporter = false;
+	bool IsAbormalWorkerMonitorEnabled = true;
+	bool IsAwmReasonIsSanityLowEnabled = true;
+	bool IsAwmReasonIsHungryEnabled = true;
+	bool IsAwmReasonIsOutsideEnabled = true;
+	bool IsAwmReasonIsLocHighEnabled = true;
+	bool IsAwmReasonIsLocLowEnabled = true;
+	double AwmReasonIsLocHighThreshold = 1000.0;
+	double AwmReasonIsLocLowThreshold = 500.0;
 	float PlayerSpeedModifier = 1.0f;
 	float WorldSpeedModiflers = 1.0f;
 	//def and value

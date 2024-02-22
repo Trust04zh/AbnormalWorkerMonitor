@@ -123,6 +123,12 @@
     <ClInclude Include="include\memory.h">
       <Filter>Header Files\Class</Filter>
     </ClInclude>
+    <ClInclude Include="include\AbnormalWorkerMonitor.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PalInternalUtility.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -192,6 +198,15 @@
       <Filter>Source Files\Class</Filter>
     </ClCompile>
     <ClCompile Include="src\feature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="include\CircularBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PalInternalUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AbnormalWorkerMonitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

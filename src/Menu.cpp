@@ -1,6 +1,7 @@
 #include "../pch.h"
 #include "include/config.h"
 #include "include/Menu.hpp"
+#include "include/AbnormalWorkerMonitor.hpp"
 std::string rand_str(const int len)
 {
     std::string str;
@@ -112,6 +113,76 @@ namespace DX11_Base
 
     namespace Tabs
     {
+
+        void TABWorker()
+        {
+            ImGui::Checkbox("Enabled", &Config.IsAbormalWorkerMonitorEnabled);
+            ImGui::SameLine();
+            if (ImGui::Button("Enable All")) {
+                Config.IsAbormalWorkerMonitorEnabled = true;
+                Config.IsAwmReasonIsSanityLowEnabled = true;
+                Config.IsAwmReasonIsHungryEnabled = true;
+                Config.IsAwmReasonIsOutsideEnabled = true;
+                Config.IsAwmReasonIsLocHighEnabled = true;
+                Config.IsAwmReasonIsLocLowEnabled = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Disable All")) {
+                Config.IsAwmReasonIsSanityLowEnabled = false;
+                Config.IsAwmReasonIsHungryEnabled = false;
+                Config.IsAwmReasonIsOutsideEnabled = false;
+                Config.IsAwmReasonIsLocHighEnabled = false;
+                Config.IsAwmReasonIsLocLowEnabled = false;
+            }
+
+            if (!Config.IsAbormalWorkerMonitorEnabled) {
+                ImGui::BeginDisabled();
+            }
+            ImGui::Checkbox("IsSanityLow", &Config.IsAwmReasonIsSanityLowEnabled);
+            ImGui::SameLine();
+            ImGui::Checkbox("IsHungry", &Config.IsAwmReasonIsHungryEnabled);
+            ImGui::SameLine();
+            ImGui::Checkbox("IsOutside", &Config.IsAwmReasonIsOutsideEnabled);
+            ImGui::SameLine();
+            ImGui::Checkbox("IsLocHigh", &Config.IsAwmReasonIsLocHighEnabled);
+            ImGui::SameLine();
+            ImGui::Checkbox("IsLocLow", &Config.IsAwmReasonIsLocLowEnabled);
+            if (!Config.IsAbormalWorkerMonitorEnabled) {
+                ImGui::EndDisabled();
+            }
+
+            double tempHighThreshold = Config.AwmReasonIsLocHighThreshold;
+            if (ImGui::InputDouble("LocHigh Threshold", &tempHighThreshold)) {
+                if (ImGui::IsItemDeactivatedAfterEdit()) {
+                    Config.AwmReasonIsLocHighThreshold = tempHighThreshold;
+                }
+            }
+            ImGui::SameLine();
+            double tempLowThreshold = Config.AwmReasonIsLocLowThreshold;
+            if (ImGui::InputDouble("LocLow Threshold", &tempLowThreshold)) {
+                if (ImGui::IsItemDeactivatedAfterEdit()) {
+					Config.AwmReasonIsLocLowThreshold = tempLowThreshold;
+				}
+			}
+
+            ImGui::SeparatorText("Log");
+
+            Logger& logger = Logger::GetInstance();
+
+            ImGui::Checkbox("Auto-scroll", &logger.AutoScroll);
+
+            ImGui::BeginChild("ScrollingRegion", ImVec2(0, 100.f), false, ImGuiWindowFlags_HorizontalScrollbar);
+            for (const auto& item : logger.Items) {
+                ImGui::TextUnformatted(item.c_str());
+            }
+
+            if (logger.AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
+                ImGui::SetScrollHereY(1.0f);
+            }
+
+            ImGui::EndChild();
+        }
+
         void TABPlayer()
         {
             if (ImGui::BeginChild("PLAYER CHILD WINDOW", ImVec2(ImGui::GetContentRegionAvail().x * .5, 150.f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border))
@@ -932,6 +1003,7 @@ namespace DX11_Base
         //  Display Menu Content
         if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None))
         {
+#ifndef AWM_CLEAN
             if (ImGui::BeginTabItem("PLAYER"))
             {
                 Tabs::TABPlayer();
@@ -967,6 +1039,12 @@ namespace DX11_Base
             if (ImGui::BeginTabItem("QUICK"))
             {
                 Tabs::TABQuick();
+                ImGui::EndTabItem();
+            }
+#endif
+            if (ImGui::BeginTabItem("WORKER"))
+            {
+                Tabs::TABWorker();
                 ImGui::EndTabItem();
             }
             //  if (Config.bisOpenManager && ImGui::BeginTabItem("Entity Manager"))

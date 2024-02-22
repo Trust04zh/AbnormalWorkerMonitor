@@ -1,11 +1,22 @@
 #include "../pch.h"
 #include "include/config.h"
 #include "include/Menu.hpp"
+#include "include/AbnormalWorkerMonitor.hpp"
+#include "include/PalInternalUtility.hpp"
+
+#include <chrono>
+#include <thread>
 
 config Config;
 Tick TickFunc;
 Tick OldTickFunc;
 
+AbnormalWorkerMonitor AwMonitor;
+
+using namespace DX11_Base;
+
+uint64 total_tick = 0;
+double total_time = .0;
 bool DetourTick(SDK::APalPlayerCharacter* m_this, float DeltaSecond)
 {
     bool result = OldTickFunc(m_this, DeltaSecond);
@@ -37,6 +48,36 @@ bool DetourTick(SDK::APalPlayerCharacter* m_this, float DeltaSecond)
     Config.bIsValidInstance = true;
     Config.localPlayer = m_this;
     DX11_Base::g_Menu->Loops();     //  sync with game thread
+
+    total_tick += 1;
+    total_time += DeltaSecond;
+
+    PalInternalUtility::GetInstance()->Tick();
+
+    if (AwMonitor.tick_mutex.try_lock())
+    {
+        AwMonitor.tick_ready = true;
+        AwMonitor.tick_time = total_time;
+        AwMonitor.tick_cond_var.notify_one();
+        AwMonitor.tick_mutex.unlock();
+    }
+
+    //auto start = std::chrono::high_resolution_clock::now();
+    //AwMonitor.on_tick(total_time);
+    //auto end = std::chrono::high_resolution_clock::now();
+    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    //int ms = duration.count();
+    //if (ms) {
+    //    // g_Console->printdbg("AwMonitor.on_tick() took %d ms\n", Console::Colors::yellow, ms);
+    //}
+    
+    //if (total_tick % 100 == 0) {
+    //    g_Console->printdbg("sampled delta: %f\n", Console::Colors::blue, DeltaSecond);
+    //}
+    //if (DeltaSecond > 0.1) {
+    //    g_Console->printdbg("Tick delta > 0.1: %f\n", Console::Colors::yellow, DeltaSecond);
+    //}
+
     return result;
 }   //  @CRASH: palcrack!DetourTick() [A:\Github\collab\PalWorld-NetCrack\config.cpp:45] : SPEED HACK UPON LOADING WORLD
 //  @CRASH-UPDATE: optimized method of obtaining gWorld, watch for crashes when joining new worlds
@@ -56,6 +97,17 @@ bool config::Init()
     SDK::InitGObjects();
     Config.kString = SDK::UKismetStringLibrary::GetDefaultObj();
     Config.pPalUtility = SDK::UPalUtility::GetDefaultObj();
+
+    PalInternalUtility::GetInstance()->Init(Config.GetUWorld());
+
+    std::thread t([]() {
+        AwMonitor.init();
+        while (1)
+        {
+            AwMonitor.on_tick(.0);
+        }
+        });
+    t.detach();
 
     TickFunc = reinterpret_cast<Tick>(TickPTR);
     if (MH_CreateHook(TickFunc, DetourTick, reinterpret_cast<void**>(&OldTickFunc)) != MH_OK)
