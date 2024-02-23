@@ -2,6 +2,8 @@
 
 A Palworld mod to monitor some abnormal cases for base camp pal workers.
 
+Blueprint version at [https://github.com/Trust04zh/AbnormalWorkerMonitor](https://github.com/Trust04zh/AbnormalWorkerMonitor_BP), which is compatible with ue4ss, but less configurable and powerful.
+
 Current features:
 
 - teleport pal worker with abnormal spawn point to its base camp on mod load.
@@ -9,8 +11,8 @@ Current features:
   - sanity low (< 50)
   - hungry
   - outside base camp
-  - too low (distance configurable)
-  - too high (distance configurable)
+  - too low (distance configurable, default 500)
+  - too high (distance configurable, default 1000)
 
 #### Usage
 
